@@ -69,3 +69,7 @@ pia stop
 This repository started off as a fork of [~rprospero/nixos-pia](https://git.sr.ht/~rprospero/nixos-pia),
 which provided a starting point for populating OpenVPN with Private Internet
 Access' VPN configurations.
+
+This repository is in turn a fork of [Fuwn/pia.nix](https://github.com/Fuwn/pia.nix),
+which provides the `pia` command-line interface and the overall structure of
+this project.
