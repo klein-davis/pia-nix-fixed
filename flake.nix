@@ -18,10 +18,21 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+
+        inherit (builtins.fromJSON (builtins.readFile "${self}/yae.json")) openvpn;
+
+        resources = pkgs.fetchzip {
+          inherit (openvpn) url;
+
+          name = "pia-vpn-config";
+          sha256 = lib.replaceStrings [ "sha256-" ] [ "" ] openvpn.sha256;
+          stripRoot = false;
+        };
       in
       {
         packages = {
           pia = import ./cli.nix { inherit lib pkgs; };
+          pia-switch = import ./pia-switch.nix { inherit pkgs resources; };
           default = self.packages.${system}.pia;
         };
 
@@ -77,28 +88,10 @@
             config = lib.mkIf config.services.pia.enable {
               environment.systemPackages = [
                 self.packages.${system}.pia
+                self.packages.${system}.pia-switch
               ];
 
               services.openvpn.servers =
-                let
-                  inherit (builtins.fromJSON (builtins.readFile "${self}/yae.json")) openvpn;
-
-                  resources = pkgs.fetchzip {
-                    inherit (openvpn) url;
-
-                    name = "pia-vpn-config";
-                    sha256 =
-                      lib.replaceStrings
-                        [
-                          "sha256-"
-                        ]
-                        [
-                          ""
-                        ]
-                        openvpn.sha256;
-                    stripRoot = false;
-                  };
-                in
                 builtins.listToAttrs (
                   map
                     (name: {
